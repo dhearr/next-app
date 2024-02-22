@@ -7,7 +7,9 @@ export default async function handler(
 ) {
   if (req.method == "GET") {
     const db = await connectDatabase();
-    const collection = db.collection("my-next-app");
+    const collection = db.collection(
+      process.env.MONGODB_COLLECTION_NAME as string
+    );
 
     const data = await collection.find({}).toArray();
 
