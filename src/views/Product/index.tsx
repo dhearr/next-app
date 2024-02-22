@@ -1,12 +1,5 @@
+import { ProductType } from "@/types/product.type";
 import styles from "./Product.module.scss";
-
-type ProductType = {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-};
 
 const ProductView = ({ products }: { products: ProductType[] }) => {
   return (
@@ -16,7 +9,7 @@ const ProductView = ({ products }: { products: ProductType[] }) => {
         {products.length > 0 ? (
           <>
             {products.map((product: ProductType) => (
-              <div key={product.id} className={styles.product__content__item}>
+              <div key={product.name} className={styles.product__content__item}>
                 <div className={styles.product__content__item__image}>
                   <img src={product.image} alt={product.name} />
                 </div>

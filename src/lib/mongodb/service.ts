@@ -4,8 +4,8 @@ let client: MongoClient;
 let db: Db;
 
 export const connectDatabase = async () => {
-  const uri = "mongodb://127.0.0.1:27017";
-  const dbName = "next-app";
+  const uri = process.env.MONGODB_URI as string;
+  const dbName = process.env.MONGODB_DB_NAME as string;
 
   if (!client) {
     client = new MongoClient(uri);
