@@ -1,17 +1,19 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { retrieveData } from "@/lib/firebase/service";
-import type { NextApiRequest, NextApiResponse } from "next";
-
-type Data = {
-  status: boolean;
-  statusCode: number;
-  data: any;
-};
+import { NextApiRequest, NextApiResponse } from "next";
+import { connectDatabase, getDb } from "@/lib/mongodb/service";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
-  const data = await retrieveData("products");
-  res.status(200).json({ status: true, statusCode: 200, data });
+  if (req.method == "GET") {
+    const db = await connectDatabase();
+    const collection = db.collection("my-next-app");
+
+    const data = await collection.find({}).toArray();
+
+    res.status(200).json(data);
+    // console.log(data);
+  } else {
+    res.status(405).json({ message: "Method not allowed" });
+  }
 }
