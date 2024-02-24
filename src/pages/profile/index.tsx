@@ -6,7 +6,7 @@ const ProfilePage = () => {
   return (
     <div>
       <h1>profile</h1>
-      <p>{data && data.user.username}</p>
+      <p>{data && data.user.fullname}</p>
     </div>
   );
 };

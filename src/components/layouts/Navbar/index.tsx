@@ -8,7 +8,7 @@ const Navbar = () => {
     <div className={styles.navbar}>
       <div>Navbar</div>
       <div>
-        {data && data.user.username}
+        {data && data.user.fullname}
         {data ? (
           <button className={styles.button} onClick={() => signOut()}>
             Sign Out

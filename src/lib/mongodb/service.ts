@@ -57,6 +57,32 @@ export const findOneDocument = async (
   }
 };
 
+export const loginUser = async (userData: { email: string }) => {
+  try {
+    // Menghubungkan ke database
+    const db = await connectDatabase();
+    // Nama koleksi pengguna
+    const collectionName = "users";
+
+    // Mendapatkan koleksi
+    const collection = db.collection(collectionName);
+
+    // Mencari pengguna berdasarkan email
+    const data = await collection.findOne({ email: userData.email });
+
+    // Jika pengguna tidak ditemukan
+    if (data) {
+      // console.log(data);
+      return data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Kesalahan saat login pengguna:", error);
+    throw error;
+  }
+};
+
 export const registerUser = async (
   userData: {
     email: string;
