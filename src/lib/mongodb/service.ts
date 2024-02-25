@@ -83,6 +83,61 @@ export const loginUser = async (userData: { email: string }) => {
   }
 };
 
+export const loginUserWithGoogle = async (userData: any, callback: any) => {
+  try {
+    // Menghubungkan ke database
+    const db = await connectDatabase();
+    // Nama koleksi pengguna
+    const collectionName = "users";
+
+    // Mendapatkan koleksi
+    const collection = db.collection(collectionName);
+
+    // Mencari pengguna berdasarkan email
+    const data = await collection.findOne({ email: userData.email });
+
+    if (data) {
+      // console.log(data);
+      userData.role = data.role;
+
+      // Jika pengguna sudah terdaftar, lakukan update data pengguna
+      const result: any = await collection.updateOne(
+        { _id: data._id },
+        { $set: userData }
+      );
+      if (result) {
+        callback({
+          status: true,
+          message: "Login with google success 1",
+          data: userData,
+        });
+        // console.log(result);
+      } else {
+        callback({ status: false, message: "Login with google failed 1" });
+      }
+      // console.log(result);
+    } else {
+      userData.role = "member";
+      const result: any = await collection.insertOne(userData);
+      if (result) {
+        // Jika data berhasil dimasukkan, kirimkan status berhasil ke callback
+        callback({
+          status: true,
+          message: "Login with google success 2",
+          data: userData,
+        });
+        // console.log(result);
+      } else {
+        // Jika terjadi kesalahan saat memasukkan data
+        callback({ status: false, message: "Login with google failed 2" });
+      }
+    }
+  } catch (error) {
+    console.error("Error while logging in with Google:", error);
+    throw error;
+  }
+};
+
 export const registerUser = async (
   userData: {
     email: string;

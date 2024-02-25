@@ -1,8 +1,9 @@
-import { loginUser } from "@/lib/mongodb/service";
+import { loginUser, loginUserWithGoogle } from "@/lib/mongodb/service";
 import { compare } from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 const authOptions: NextAuthOptions = {
   // Konfigurasi sesi
@@ -44,16 +45,43 @@ const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_OAUTH_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || "",
+    }),
   ],
   // Callbacks untuk manipulasi token JWT dan sesi
   callbacks: {
     // Callback untuk manipulasi token JWT
-    jwt({ token, account, user }: any) {
+    async jwt({ token, account, user }: any) {
       // Jika autentikasi menggunakan kredensial, menambahkan email dan fullname ke token
       if (account?.provider === "credentials") {
         token.email = user.email;
         token.fullname = user.fullname;
         token.role = user.role;
+      }
+      if (account?.provider === "google") {
+        const data = {
+          email: user.email,
+          fullname: user.name,
+          image: user.image,
+          type: "google",
+        };
+        // console.log("ini data : ", data);
+        await loginUserWithGoogle(
+          data,
+          (result: { status: boolean; message: string; data: any }) => {
+            if (result.status) {
+              token.email = result.data.email;
+              token.fullname = result.data.fullname;
+              token.image = result.data.image;
+              token.type = result.data.type;
+              token.role = result.data.role;
+            }
+            // console.log(result);
+            // console.log(data);
+          }
+        );
       }
       // Mengembalikan token yang telah dimodifikasi
       return token;
@@ -67,6 +95,10 @@ const authOptions: NextAuthOptions = {
       // Jika fullname ada dalam token, menambahkannya ke sesi
       if ("fullname" in token) {
         session.user.fullname = token.fullname;
+      }
+      // Jika image ada dalam token, menambahkannya ke sesi
+      if ("image" in token) {
+        session.user.image = token.image;
       }
       // Jika role ada dalam token, menambahkannya ke sesi
       if ("role" in token) {
